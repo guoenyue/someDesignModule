@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>tactics</title>
+</head>
+<body>
+	<script>
+		//保存工资的算法
+		var strategies={
+			"S":function(salary){
+				return salary*4;
+			},
+			"A":function(salary){
+				return salary*3;
+			},
+			"B":function(salary){
+				return salary*2;
+			}
+		}
+
+		function getBounce(stage,baseSalary){
+			return strategies[stage](baseSalary);
+		}
+
+		//工资的算法与计算结果的耦合性
+		//并不高，即使后边再多变化一些工资等级只需要改变strategies即可。
+		console.log(getBounce("A",2000));
+		console.log(getBounce("S",2000));
+
+
+		//常规写法对比，
+		function getBouncePlus(stage,baseSalary){
+			if(stage=="S"){
+				return baseSalary*4;
+			}else if(stage=="A"){
+				return baseSalary*3;
+			}else if(stage=="B"){
+				return baseSalary*2;
+			}
+		}
+
+		//这个plus版本是常规的写法，通过大量的if else判断，虽然也可以达到预期效果但是
+		//大量类型判断，而且直接修改，看似相差不大，后边条件多起来的话影响较大，直接修改
+		//试想一个场景，某月起，每人的工资都要减去一个值，第一个版本可以在getBounce函数中
+		//直接修改，只改一遍就好，而后边那个plus则需要在每个if分支上都要改一遍，显然是不
+		//符合前端的需求的，前端至理名言：拥抱变化。哈哈哈，代码写出来就是要改的，可悲的前端
+
+
+
+
+
+	</script>
+</body>
+</html>
