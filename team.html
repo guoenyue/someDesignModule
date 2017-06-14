@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>team</title>
+</head>
+<body>
+	<script type="text/javascript">
+		//原型继承
+		var People=function(){
+			this.name="";
+			this.sex="";
+		};
+		// People.prototype.setName=function(name){
+		// 	this.name=name;
+		// }
+		// People.prototype.setSex=function(sex){
+		// 	this.sex=sex;
+		// }
+		People.prototype={
+			constructor:People,
+			setName:function(name){
+				this.name=name;
+			},
+			setSex:function(sex){
+				this.sex=sex;
+			},
+			init:function(name,sex){
+				this.setName(name);
+				this.setSex(sex);
+			}
+		}
+		var Coder=function(){
+			this.skill="coder";
+		}
+		Coder.prototype=new People();
+		Coder.prototype.constructor=Coder;
+
+		var Teacher=function(){
+			this.skill="teach";
+		}
+		Teacher.prototype=new People();
+		Teacher.prototype.constructor=Teacher;
+		
+		var Singer=function(){
+			this.skill="sing";
+		}
+		Singer.prototype=new People();
+		Singer.prototype.constructor=Singer;
+
+		var coder=new Coder();
+		coder.setName("小明");
+		coder.setSex("男");
+		var teacher=new Teacher();
+		teacher.setName("小李");
+		teacher.setSex("男");
+
+		var singer=new Singer();
+		singer.init("小雪","女");
+		console.log(coder.name,coder.sex,coder.skill);
+		console.log(teacher.name,teacher.sex,teacher.skill);
+		console.log(singer.name,singer.sex,singer.skill);
+	</script>
+</body>
+</html>
