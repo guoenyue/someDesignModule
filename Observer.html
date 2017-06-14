@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Observer</title>
+</head>
+<body>
+	<div id="show"></div>
+	<button type="button" id="btn">按钮</button>
+	<script>
+		var Event={
+			observer:{},
+			count:0,
+			listen:function(ev,fn){
+				this.observer[ev]=function(){
+					//console.log(ev,fn);
+					fn&&fn.apply(Event,arguments)?void(0):console.log(ev+":"+Event.count);
+				}
+			},
+			trigger:function(ev){
+				Event.count++;
+				typeof Event.observer[ev]==="function"&&Event.observer[ev]();
+			}
+		}
+
+		Event.listen("click");
+		Event.listen("tap",function(ev){console.log("tap:"+Event.count*3);return true;});
+		document.getElementById("btn").onclick=function(){
+			Event.trigger("click");
+		}
+		//setInterval((Event.trigger),1000,"click");
+		setInterval(Event.trigger,1500,"tap");
+	</script>
+</body>
+</html>
