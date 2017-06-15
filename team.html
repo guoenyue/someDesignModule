@@ -57,9 +57,61 @@
 
 		var singer=new Singer();
 		singer.init("小雪","女");
+
+
 		console.log(coder.name,coder.sex,coder.skill);
 		console.log(teacher.name,teacher.sex,teacher.skill);
 		console.log(singer.name,singer.sex,singer.skill);
+
+		var Files=function(){
+			this.scan=function(){};
+		};
+
+
+		var Folder=function(name){
+			this.cont=[];
+			this.type="Folder";
+			this.name=name;
+			this.append=function(file){
+				console.log("文件夹"+this.name+"添加了一个"+(file.type=="Folder"?"文件夹 :":"文件:")+file.name);
+				this.cont.push(file);
+			};
+			this.scan=function(){
+				var tmp=this.cont.slice(0);
+				console.log(this.type+":"+this.name);
+				for(var i=0;file=tmp.shift();){
+					file.scan();
+				}
+				tmp=null;
+			}
+		};
+
+		var File=function(fileCont){
+			this.cont=fileCont;
+			this.name=fileCont;
+			this.scan=function(){
+				console.log(this.cont);
+			}
+		}
+
+		var folder1=new Folder("folder1");
+		var folder2=new Folder("folder2");
+		var file0=new File("西游记");
+		var file1=new File("水浒传");
+		var file2=new File("三国演义");
+		var file3=new File("红楼梦");
+		var file4=new File("白蛇传");
+		var file5=new File("封神榜");
+		folder2.append(file0);
+		folder1.append(file4);
+		folder2.append(file1);
+		folder2.append(file2);
+		folder2.append(file3);
+		folder1.append(folder2);
+		folder2.append(file5);
+
+		folder1.scan();
+		//folder2.scan();
 	</script>
 </body>
 </html>
