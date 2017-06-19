@@ -15,14 +15,14 @@
 			this.state="alive";
 		}
 		Player.prototype.lose=function(){
-			console.log("玩家"+this.name+"失败。");
+			console.log(this.teamColor+"玩家"+this.name+"失败。");
 		}
 		Player.prototype.win=function(){
-			console.log("玩家"+this.name+"获胜。");
+			console.log(this.teamColor+"玩家"+this.name+"获胜。");
 		}
 		Player.prototype.die=function(){
 			this.state="die";
-			console.log("玩家"+this.name+"死亡。");
+			console.log(this.teamColor+"玩家"+this.name+"死亡。");
 			playerDirecter.receiveMessage("playerDead",this);
 		}
 		Player.prototype.remove=function(){
@@ -107,14 +107,14 @@
 
 
 		var player1=playerFactory("小明","红队");
-		var player2=playerFactory("小王","红队");
+		var player2=playerFactory("小王","黄队");
 		var player3=playerFactory("小赵","红队");
 		var player4=playerFactory("小红","蓝队");
 		var player5=playerFactory("小千","红队");
 		player5.die();
 		player3.changeTeam("蓝队");
 		player1.die();
-		player2.die();
+		//player2.die();
 		//player1.die();
 	</script>
 </body>
