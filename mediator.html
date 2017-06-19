@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Mediator</title>
+</head>
+<body>
+	<script type="text/javascript">
+		//中介者模式
+
+		//创建玩家类
+		function Player(name,teamColor){
+			this.name=name;
+			this.teamColor=teamColor;
+			this.state="alive";
+		}
+		Player.prototype.lose=function(){
+			console.log("玩家"+this.name+"失败。");
+		}
+		Player.prototype.win=function(){
+			console.log("玩家"+this.name+"获胜。");
+		}
+		Player.prototype.die=function(){
+			this.state="die";
+			console.log("玩家"+this.name+"死亡。");
+			playerDirecter.receiveMessage("playerDead",this);
+		}
+		Player.prototype.remove=function(){
+			playerDirecter.receiveMessage("playerRemove",this);
+		}
+		Player.prototype.changeTeam=function(color){
+			console.log("玩家"+this.name+"从"+this.teamColor+"变成了"+color);
+			playerDirecter.receiveMessage("playerChange",this,color);
+		}
+
+		//创建玩家工厂函数
+		var playerFactory=function(name,teamColor){
+			var newPlayer=new Player(name,teamColor);
+			playerDirecter.receiveMessage("addPlayer",newPlayer);
+			return newPlayer;
+		}
+
+		//玩家中介者对象
+		var playerDirecter=(function(){
+			var playerList={};
+			var operations={};
+
+			operations.addPlayer=function(player){
+				var teamColor=player.teamColor;
+				playerList[teamColor]=playerList[teamColor]||[];
+				playerList[teamColor].push(player);
+			};
+			operations.playerDead=function(player){
+				var all_dead=true;
+				var teamColor=player.teamColor;
+				var playerTeam=playerList[teamColor];
+				playerTeam.forEach(function(item,i){
+					if(item.state!=="die"){
+						all_dead=false;
+					};
+				});
+				if(all_dead){
+					playerTeam.forEach(function(item,i){
+						item.lose();
+					});
+					for(var color in playerList){
+						if(color!==teamColor){
+							playerList[color].forEach(function(item,i){
+								item.win();
+							});
+						}
+					}
+				}
+			};
+			operations.playerRemove=function(player){
+				var teamColor=player.teamColor;
+				playerList[teamColor]=playerList[teamColor]||[];
+				playerList[teamColor].forEach(function(item,i){
+					if(item==player){
+						playerList[teamColor].splice(i,1);
+					}
+				});
+			};
+			operations.playerChange=function(player,teamColor){
+				operations.playerRemove(player);
+				player.teamColor=teamColor;
+				operations.addPlayer(player);
+			};
+			function receiveMessage(){
+				var txtControl=[].shift.call(arguments);
+				operations[txtControl].apply(this,arguments);
+			};
+			return {
+				receiveMessage:receiveMessage
+			};
+		})();
+
+
+		var player1=playerFactory("小明","红队");
+		var player2=playerFactory("小王","红队");
+		var player3=playerFactory("小赵","红队");
+		var player4=playerFactory("小红","蓝队");
+		var player5=playerFactory("小千","红队");
+		player5.die();
+		player3.changeTeam("蓝队");
+		player1.die();
+		player2.die();
+		//player1.die();
+	</script>
+</body>
+</html>
