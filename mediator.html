@@ -26,6 +26,7 @@
 			playerDirecter.receiveMessage("playerDead",this);
 		}
 		Player.prototype.remove=function(){
+			console.log("玩家"+this.name+"从"+this.teamColor+"队伍中移除。");
 			playerDirecter.receiveMessage("playerRemove",this);
 		}
 		Player.prototype.changeTeam=function(color){
@@ -43,13 +44,19 @@
 		//玩家中介者对象
 		var playerDirecter=(function(){
 			var playerList={};
+			//存储玩家队伍列表
 			var operations={};
+			//中介者功能函数对象
 
+			//中介者新增玩家触发函数，新建玩家所在队伍列表或直接添加到已有玩家队伍列表。
 			operations.addPlayer=function(player){
 				var teamColor=player.teamColor;
 				playerList[teamColor]=playerList[teamColor]||[];
 				playerList[teamColor].push(player);
 			};
+			//玩家死亡触发函数，每当有玩家死亡时都遍历死亡玩家所在队伍的生存玩家数，若全部死亡，则将
+			//玩家所在队伍判定为失败，然后遍历玩家队伍列表中的所有其他队伍，其他队伍成员收到消息通知，
+			//该玩家队伍失败，其他队伍获胜。
 			operations.playerDead=function(player){
 				var all_dead=true;
 				var teamColor=player.teamColor;
@@ -72,6 +79,7 @@
 					}
 				}
 			};
+			//玩家从当前队伍中移除函数
 			operations.playerRemove=function(player){
 				var teamColor=player.teamColor;
 				playerList[teamColor]=playerList[teamColor]||[];
@@ -81,11 +89,13 @@
 					}
 				});
 			};
+			//玩家变换战队函数，第一步将玩家从当前队伍中移除，然后改变玩家的队伍颜色，将玩家添加到新队伍中。
 			operations.playerChange=function(player,teamColor){
 				operations.playerRemove(player);
 				player.teamColor=teamColor;
 				operations.addPlayer(player);
 			};
+			//事件处理函数，接受外界指令。
 			function receiveMessage(){
 				var txtControl=[].shift.call(arguments);
 				operations[txtControl].apply(this,arguments);
