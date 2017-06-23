@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>waiter</title>
+</head>
+<body>
+	<script type="text/javascript">
+		/*
+			*waiter 等待者模式。这个用于多异步环境下的函数触发。
+			*看起来和原生promise真的很像啊。
+
+		*/
+
+		var Waiter=function(){
+				//等待对象的集合数组
+			var dfd=[],
+				//成功之后的回调函数集合
+				doneArr=[],
+				//失败之后的回调函数集合
+				failArr=[],
+				//slice函数，在后边的作用是将arguments参数类数组对象转成数组对象
+				slice=Array.prototype.slice,
+				//复位this指针
+				that=this;
+				//Primise类，每一个等待条件都是该类的实例
+			var Primise=function(){
+				//表征该事件成功触发
+				this.resolved=false;
+				//表征该事件触发失败
+				this.rejected=false;
+			}
+
+			Primise.prototype={
+				resolve:function(){
+				//事件成功触发处理函数
+					//将表征标志置成成功
+					this.resolved=true;
+					//如果等待对象则直接返回
+					if(!dfd.length)return;
+
+					for(var i=dfd.length-1;i>=0;i--){
+						//该处的if判断条件是判断是否还有没成功的等待对象，
+						//若有的话则跳出resolve函数继续等待第二次触发该函数
+						if(dfd[i]&&!dfd[i].resolved||dfd[i].rejected){
+							return;
+						}
+						console.log("移除");
+						//成功的等待对象从数组中移除
+						dfd.splice(i,1);
+					}
+					console.log(dfd);
+					_exec(doneArr);
+				},
+				reject:function(){
+					this.rejected=true;
+					if(!dfd.length)return;
+					dfd.splice(0);
+					_exec(failArr);
+				}
+			}
+
+			that.Deferred=function(){
+				return new Primise();
+			}
+
+			function _exec(arr){
+				console.log("内部的_exec函数");
+				var i=0;
+				var len=arr.length;
+				for(;i<len;i++){
+					try{
+						//执行所有的标记函数
+						arr[i]&&arr[i]();
+					}catch(e){}
+				}
+			};
+
+			that.when=function(){
+				//装载dfd等待对象数组，即初始化等待对象
+				dfd=slice.call(arguments);
+				var i=dfd.length;
+				for(--i;i>=0;i--){
+					//筛选等待对象，将已经响应状态的等待对象或者不是等待对象的对象从等待对象集合中移除
+					if(!dfd[i]||dfd[i].resolved||dfd[i].rejected||!dfd[i] instanceof Primise){
+						dfd.splice(i,1);
+					}
+				}
+				return that;
+			};
+
+			that.done=function(){
+				console.log("内部的done函数");
+				doneArr=doneArr.concat(slice.call(arguments));
+				return that;
+			};
+
+			that.fail=function(){
+				console.log("内部的fail函数");
+				failArr=failArr.concat(slice.call(arguments));
+				return that;
+			};
+
+		}
+
+
+		//实例化
+
+		var waiter=new Waiter();
+
+		var first=(function(){
+					var dtd=waiter.Deferred();
+					setTimeout(function(){
+						console.log("first finish");
+						dtd.resolve();
+					},5000);
+					return dtd
+				})();
+		var second=(function(){
+					var dtd=waiter.Deferred();
+					setTimeout(function(){
+						console.log("second finish");
+						dtd.resolve();
+					},10000);
+					return dtd;
+				})();
+		waiter.when(first,second)
+			  .done(function(){
+			  	console.log("success");
+			  },function(){
+			  	console.log("success again");
+			  })
+			  .fail(function(){
+			  	console.log("fail");
+			  });
+
+
+
+
+
+
+			/*
+				下函数仅仅是为了验证函数中的for循环中的return语句会影响整个函数体，
+				进而证明for循环没有自己的作用域，同时也证明if也没有自己的作用域，
+				for循环里的return直接导致函数的运行结束，满足条件之后return之后的
+				所有代码全部不会执行。
+			*/
+			  (function(){
+			  	var i=10;
+			  	for(;i>=0;i--){
+			  		if(i==5){
+			  			return;
+			  		}
+			  	}
+			  	console.log(i);
+			  })()
+
+
+
+
+
+
+
+
+	</script>
+</body>
+</html>
