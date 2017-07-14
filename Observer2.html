@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Observer2</title>
+	<style>
+		body{padding: 200px;}
+		.box{width: 500px;height: 300px;border: 1px solid #000;background-color: rgba(89,92,22,0.4);font-size:20px;color:#333;text-align: center;line-height: 300px;}
+	</style>
+</head>
+<body>
+	<div class="box" id="box">0</div>
+
+	<script type="text/javascript">
+		var Observer=(function(){
+				var _message={};
+				return {
+					regist:function(type,fn){
+						fn=fn||function(){};
+						if(typeof _message[type]=="undefined"){
+							_message[type]=[fn];
+						}else{
+							_message[type].push(fn);
+						}
+					},
+					fire:function(type,event){
+						if(typeof _message[type]=="undefined")return false;
+						var args={
+							type:type,
+							event:event||{}
+						};
+						for(var i=0,callback;callback=_message[type][i++];){
+							callback.call(this,args);
+						}
+
+					},
+					removeItem:function(type,fn){
+						if(typeof _message[type]=="undefined")return false;
+						var _typeFn=_message[type];
+						for(var i=_typeFn.length-1,callback;callback=_typeFn[i--];){
+							if(callback==fn){
+								_typeFn.splice(i,1);
+							}
+						}
+					},
+					remove:function(type){
+						if(typeof _message[type]=="undefined")return true;
+						_message[type]=undefined;return true;
+					}
+				}
+		})();
+	</script>
+
+	<script type="text/javascript">
+		var myBox=document.getElementById("box");
+		var cb=function(event){
+			myBox.innerHTML=event.event.num;
+		};
+		Observer.regist("change",cb);
+
+		setTimeout(function(){
+			Observer.fire("change",{num:66});
+		},3000);
+
+		setTimeout(function(){
+			Observer.removeItem("change",cb);
+		},5000);
+		
+		setTimeout(function(){
+			console.log("又变了");
+			Observer.fire("change",{num:88});
+		},6000);		
+	</script>
+</body>
+</html>
